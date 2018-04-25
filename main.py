@@ -56,7 +56,7 @@ cost_i = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits,labels=Y_one_h
 cost = tf.reduce_mean(cost_i)
 # cost = tf.reduce_mean(-tf.reduce_sum(Y * tf.log(hypothesis)))
 
-train  = tf.train.GradientDescentOptimizer(learning_rate=0.05).minimize(cost)
+train  = tf.train.GradientDescentOptimizer(learning_rate=0.111).minimize(cost)
 # train = tf.train.AdamOptimizer(learning_rate=0.01).minimize(cost) 
 
 prediction = tf.argmax(hypothesis, 1)
