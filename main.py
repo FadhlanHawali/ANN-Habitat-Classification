@@ -98,4 +98,3 @@ sub['Correct'] = test_correct
 sub
 
 sub[['Name','Predict_Type']].to_csv('submission.csv',index=False)
-with open('zoo.txt','w') as out

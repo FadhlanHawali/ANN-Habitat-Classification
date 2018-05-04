@@ -9,12 +9,12 @@ import json
 import warnings
 warnings.filterwarnings("ignore")
 
-zoo = pd.read_csv("./input/zoo.csv")
+zoo = pd.read_csv("./input/zoo2.data.csv")
 zoo.head()
 print("This ZOO dataset is consised of",len(zoo),"rows.")
 
 #menghitung jumlah animal berdasarkan class nya
-sns.countplot(zoo['class_type'],label="Count")
+sns.countplot(zoo['habitat'],label="Count")
 
 #plotting dari 16 fitur
 corr = zoo.iloc[:,1:-1].corr()
@@ -27,7 +27,7 @@ plt.title('Correlation of ZOO Features', y=1.05, size=15)
 #kolom prediksi untuk training. Itu ada -1 karena kolom yang class type nya dihilangkan
 x_data = zoo.iloc[:,:-1]
 x_data.head()
-#untuk membandingkan dengan hasil prediksi (kolom 17 terdepan)
+#untuk membandingkan dengan hasil prediksi
 y_data = zoo.iloc[:,-1:]
 y_data.head()
 
@@ -51,15 +51,15 @@ test_x = test_x.iloc[:,1:]
 print("Training Data has",train_x.shape)
 print("Testing Data has",test_x.shape)
 
-X = tf.placeholder(tf.float32, [None,17]) #zoo data kan punya 16 fitur
+X = tf.placeholder(tf.float32, [None,16]) #zoo data kan punya 16 fitur
 Y = tf.placeholder(tf.int32, [None, 1]) #outputnya cuma 1 kolom, yaitu class animal nya
-Y_one_hot = tf.one_hot(Y, 4)  # one hot encoding
-Y_one_hot = tf.reshape(Y_one_hot, [-1, 4])
+Y_one_hot = tf.one_hot(Y, 7)  # one hot encoding
+Y_one_hot = tf.reshape(Y_one_hot, [-1, 7])
 
 #W = weight (16,7), 16 karena ada 16 feature, sedangkan 7 karena mau ada 7 hasil berdasarkan class nya
-W = tf.Variable(tf.random_normal([17, 4],seed=0), name='weight')
+W = tf.Variable(tf.random_normal([16, 7],seed=0), name='weight')
 #bias, kenapa 7? karena mau ada 7 layer (tipe)
-b = tf.Variable(tf.random_normal([4],seed=0), name='bias')
+b = tf.Variable(tf.random_normal([7],seed=0), name='bias')
 #Output = Weight * Input + Bias
 logits = tf.matmul(X, W) + b
 # hypothesis = tf.nn.softmax(logits)
@@ -79,7 +79,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    for step in range(3001):
+    for step in range(5001):
         sess.run(train, feed_dict={X: train_x, Y: train_y})
         if step % 1000 == 0:
             loss, acc = sess.run([cost, accuracy], feed_dict={X: train_x, Y: train_y})
@@ -90,13 +90,11 @@ with tf.Session() as sess:
     print("Model Prediction =", train_acc)
     print("Test Prediction =", test_acc)
 
-
 sub = pd.DataFrame()
 sub['Name'] = test_name
-sub['Prediksi_Habitat'] = test_predict
+sub['Predict_Type'] = test_predict
 sub['Origin_Type'] = test_y
 sub['Correct'] = test_correct
+sub
 
-
-
-sub[['Name','Prediksi_Habitat','Correct']].to_csv('submission.csv',index=False)
+sub[['Name','Predict_Type','Correct']].to_csv('submission.csv',index=False)
