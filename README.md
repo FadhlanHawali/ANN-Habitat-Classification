@@ -1,20 +1,35 @@
 # ANN-SLP-Zoo
 Artificial Neural Network - Single Layer Perceptron
+Dengan Dataset Zoo
 
-#Cara Train
+# Prerequisites
 1. Masuk ke direktori file ini
 2. Install Tensorflow
-"pip install tensorflow"
+```
+pip install tensorflow
+```
 3. Install Pandas
-"pip install pandas"
+```
+pip install pandas
+```
 4. Install numpy
-"pip install numpy"
+```
+pip install numpy
+```
 5. Install Scipy
-"pip install scipy"
+```
+pip install scipy
+```
 6. Install scikit
-"pip install scikit-learn"
+```
+pip install scikit-learn
+```
 7. Install seaborn
-"pip install seaborn"
+```
+pip install seaborn
+```
 
-#Kalau udah semua train kek begini
-" python main.py "
+# Train
+```
+python main.py
+```
