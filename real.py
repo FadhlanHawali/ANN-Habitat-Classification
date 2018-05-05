@@ -23,7 +23,7 @@ plt.figure(figsize=(14,14))
 sns.heatmap(corr, cbar = True,  square = True, annot=True, fmt= '.2f',annot_kws={'size': 12},
             cmap = colormap, linewidths=0.1, linecolor='white')
 plt.title('Correlation of ZOO Features', y=1.05, size=15)
-plt.show()
+#plt.show()
 #kolom prediksi untuk training. Itu ada -1 karena kolom yang class type nya dihilangkan
 x_data = zoo.loc[:,('animal_name','airborne','aquatic','breathes','fins','class_type')]
 x_data.head()
