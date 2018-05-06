@@ -37,7 +37,7 @@ print("Feature Data :", x_data.shape)
 print("Label Data :", y_data.shape)
 
 #Data displit jadi 70:30, kayak yang dijelasin pake K-Map
-train_x, test_x, train_y, test_y = train_test_split(x_data, y_data, test_size=0.3, random_state=48, stratify=y_data)
+train_x, test_x, train_y, test_y = train_test_split(x_data, y_data, test_size=0.3, random_state=100, stratify=y_data)
 print("Training Data has",train_x.shape)
 print("Testing Data has",test_x.shape)
 
@@ -69,8 +69,8 @@ cost_i = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits,labels=Y_one_h
 cost = tf.reduce_mean(cost_i)
 # cost = tf.reduce_mean(-tf.reduce_sum(Y * tf.log(hypothesis)))
 
-#train  = tf.train.GradientDescentOptimizer(learning_rate=0.05).minimize(cost)
-train = tf.train.AdamOptimizer(learning_rate=0.01).minimize(cost) 
+train  = tf.train.GradientDescentOptimizer(learning_rate=0.3).minimize(cost)
+#train = tf.train.AdamOptimizer(learning_rate=0.01).minimize(cost) 
 
 #compare original vs prediksi
 prediction = tf.argmax(hypothesis, 1)
