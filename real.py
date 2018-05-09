@@ -16,16 +16,17 @@ print("This ZOO dataset is consised of",len(zoo),"rows.")
 #menghitung jumlah animal berdasarkan class nya
 sns.countplot(zoo['habitat'],label="Count")
 
-#plotting dari 16 fitur
-corr = zoo.loc[:,('animal_name','airborne','aquatic','breathes','fins','class_type')].corr()
+#plotting dari 6 fitur
+corr = zoo.loc[:,('animal_name','airborne','aquatic','breathes','fins','legs','class_type')].corr()
 colormap = sns.diverging_palette(220, 10, as_cmap = True)
 plt.figure(figsize=(14,14))
 sns.heatmap(corr, cbar = True,  square = True, annot=True, fmt= '.2f',annot_kws={'size': 12},
             cmap = colormap, linewidths=0.1, linecolor='white')
 plt.title('Correlation of ZOO Features', y=1.05, size=15)
 #plt.show()
+
 #kolom prediksi untuk training. Itu ada -1 karena kolom yang class type nya dihilangkan
-x_data = zoo.loc[:,('animal_name','airborne','aquatic','breathes','fins','class_type')]
+x_data = zoo.loc[:,('animal_name','airborne','aquatic','breathes','fins','legs','class_type')]
 x_data.head()
 #untuk membandingkan dengan hasil prediksi
 y_data = zoo.iloc[:,-1:]
@@ -37,7 +38,10 @@ print("Feature Data :", x_data.shape)
 print("Label Data :", y_data.shape)
 
 #Data displit jadi 70:30, kayak yang dijelasin pake K-Map
-train_x, test_x, train_y, test_y = train_test_split(x_data, y_data, test_size=0.3, random_state=100, stratify=y_data)
+#<<<<<<< Updated upstream
+train_x, test_x, train_y, test_y = train_test_split(x_data, y_data, test_size=0.3, random_state=1, stratify=y_data)
+#train_x, test_x, train_y, test_y = train_test_split(x_data, y_data, test_size=0.2, random_state=48, stratify=y_data)
+#>>>>>>> Stashed changes
 print("Training Data has",train_x.shape)
 print("Testing Data has",test_x.shape)
 
@@ -51,15 +55,16 @@ test_x = test_x.iloc[:,1:]
 print("Training Data has",train_x.shape)
 print("Testing Data has",test_x.shape)
 
-X = tf.placeholder(tf.float32, [None,5]) #zoo data kan punya 16 fitur
+X = tf.placeholder(tf.float32, [None,6]) #zoo data kan punya 16 fitur
 Y = tf.placeholder(tf.int32, [None, 1]) #outputnya cuma 1 kolom, yaitu class animal nya
-Y_one_hot = tf.one_hot(Y, 3)  # one hot encoding
-Y_one_hot = tf.reshape(Y_one_hot, [-1, 3])
+Y_one_hot = tf.one_hot(Y, 6)  # one hot encoding
+Y_one_hot = tf.reshape(Y_one_hot, [-1, 6])
+
 
 #W = weight (16,7), 16 karena ada 16 feature, sedangkan 7 karena mau ada 7 hasil berdasarkan class nya
-W = tf.Variable(tf.random_normal([5, 3],seed=0), name='weight')
+W = tf.Variable(tf.random_normal([6, 6],seed=0), name='weight')
 #bias, kenapa 7? karena mau ada 7 layer (tipe)
-b = tf.Variable(tf.random_normal([3],seed=0), name='bias')
+b = tf.Variable(tf.random_normal([6],seed=0), name='bias')
 #Output = Weight * Input + Bias
 logits = tf.matmul(X, W) + b
 # hypothesis = tf.nn.softmax(logits)
@@ -69,8 +74,9 @@ cost_i = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits,labels=Y_one_h
 cost = tf.reduce_mean(cost_i)
 # cost = tf.reduce_mean(-tf.reduce_sum(Y * tf.log(hypothesis)))
 
-train  = tf.train.GradientDescentOptimizer(learning_rate=0.3).minimize(cost)
-#train = tf.train.AdamOptimizer(learning_rate=0.01).minimize(cost) 
+
+#train  = tf.train.GradientDescentOptimizer(learning_rate=1).minimize(cost)
+train = tf.train.AdamOptimizer(learning_rate=0.01).minimize(cost) 
 
 #compare original vs prediksi
 prediction = tf.argmax(hypothesis, 1)
@@ -79,9 +85,9 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    for step in range(5001):
+    for step in range(16000):
         sess.run(train, feed_dict={X: train_x, Y: train_y})
-        if step % 1000 == 0:
+        if step % 4000 == 0:
             loss, acc = sess.run([cost, accuracy], feed_dict={X: train_x, Y: train_y})
             print("Step: {:5}\tLoss: {:.3f}\tAcc: {:.2%}".format(step, loss, acc))
             
@@ -98,3 +104,6 @@ sub['Correct'] = test_correct
 sub
 
 sub[['Name','Predict_Type','Origin_Type','Correct']].to_csv('submission.csv',index=False)
+out = sub.to_json(orient='records')
+with open('file_name.json', 'w') as f:
+    f.write(out)
