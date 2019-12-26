@@ -1,4 +1,4 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
@@ -8,7 +8,7 @@ import json
 # Supress unnecessary warnings so that presentation looks clean
 import warnings
 warnings.filterwarnings("ignore")
-
+tf.disable_v2_behavior()
 zoo = pd.read_csv("./input/zoo2.data.csv")
 zoo.head()
 print("This ZOO dataset is consised of",len(zoo),"rows.")
@@ -23,25 +23,22 @@ plt.figure(figsize=(14,14))
 sns.heatmap(corr, cbar = True,  square = True, annot=True, fmt= '.2f',annot_kws={'size': 12},
             cmap = colormap, linewidths=0.1, linecolor='white')
 plt.title('Correlation of ZOO Features', y=1.05, size=15)
-#plt.show()
+plt.show()
 
-#kolom prediksi untuk training. Itu ada -1 karena kolom yang class type nya dihilangkan
+#kolom prediksi untuk training. Itu ada -1 karena kolom yang habitat nya dihilangkan
 x_data = zoo.loc[:,('animal_name','airborne','aquatic','breathes','fins','legs','class_type')]
 x_data.head()
 #untuk membandingkan dengan hasil prediksi
 y_data = zoo.iloc[:,-1:]
 y_data.head()
 
-#(101,17) , harusnya kan 18 karena class type nya dihapus jadi 17 doang
+#(101,7) 
 print("Feature Data :", x_data.shape)
-#(101,1), labelnya sendiri kan bakalan cuma 1 kolom
+#(101,1), label outputnya sendiri kan bakalan cuma 1 kolom
 print("Label Data :", y_data.shape)
 
-#Data displit jadi 70:30, kayak yang dijelasin pake K-Map
-#<<<<<<< Updated upstream
-train_x, test_x, train_y, test_y = train_test_split(x_data, y_data, test_size=0.3, random_state=1, stratify=y_data)
-#train_x, test_x, train_y, test_y = train_test_split(x_data, y_data, test_size=0.2, random_state=48, stratify=y_data)
-#>>>>>>> Stashed changes
+#Data displit jadi 70:30
+train_x, test_x, train_y, test_y = train_test_split(x_data, y_data, test_size=0.2, random_state=47, stratify=y_data)
 print("Training Data has",train_x.shape)
 print("Testing Data has",test_x.shape)
 
@@ -75,8 +72,8 @@ cost = tf.reduce_mean(cost_i)
 # cost = tf.reduce_mean(-tf.reduce_sum(Y * tf.log(hypothesis)))
 
 
-#train  = tf.train.GradientDescentOptimizer(learning_rate=1).minimize(cost)
-train = tf.train.AdamOptimizer(learning_rate=0.01).minimize(cost) 
+train  = tf.train.GradientDescentOptimizer(learning_rate=0.01).minimize(cost)
+#train = tf.train.AdamOptimizer(learning_rate=0.01).minimize(cost) 
 
 #compare original vs prediksi
 prediction = tf.argmax(hypothesis, 1)
@@ -85,12 +82,13 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    for step in range(16000):
+
+    for epoch in range(16000):
         sess.run(train, feed_dict={X: train_x, Y: train_y})
-        if step % 4000 == 0:
+        if epoch % 100 == 0:
             loss, acc = sess.run([cost, accuracy], feed_dict={X: train_x, Y: train_y})
-            print("Step: {:5}\tLoss: {:.3f}\tAcc: {:.2%}".format(step, loss, acc))
-            
+            print("Epoch: {:5}\tLoss: {:.3f}\tAcc: {:.2%}".format(epoch, loss, acc))
+      
     train_acc = sess.run(accuracy, feed_dict={X: train_x, Y: train_y})
     test_acc,test_predict,test_correct = sess.run([accuracy,prediction,correct_prediction], feed_dict={X: test_x, Y: test_y})
     print("Model Prediction =", train_acc)
